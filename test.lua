@@ -1,18 +1,10 @@
-package.cpath = package.cpath..";./?.so"
-package.path = package.cpath..";./?.lua"
-
-
-local htmlentities = require("lib.resty.htmlentities")
-
-local decoder, err = htmlentities.new()
-if err then
-    assert(false, "cannot found libhtmlentities.so")
-end
-
-function test(input, output)
-	local s = decoder.decode(input)
-	assert(s == output, string.format("test failed: %s => %s (%s)", input, output, s))
-	print(string.format("test success: %s => %s", input, output))
+local decoder = require "htmlentity"
+local function test(input, output)
+    local s = decoder.decode(input)
+    --print(string.byte(s, 1, #s))
+    --print(string.byte(output, 1, #output))
+    assert(s == output, string.format("test failed: %s => %s (%s)", input, output, s))
+    print(string.format("test success: %s => %s", input, output))
 end
 
 test('Christoph G&auml;rtner', "Christoph Gärtner");

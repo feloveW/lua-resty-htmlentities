@@ -1,43 +1,20 @@
-OS := $(shell uname)
-
-SRC := entities.c
+SRC := lua-htmlentity.c
 OBJ := $(SRC:.c=.o)
+SO_NAME := htmlentity.so
 
-DEMO := demo
+LUA_INC=/usr/local/include
+LUA_LIB=/root/project/skyent_src/3rd/lua
+CFLAGS := -Wall -O3 -flto -g -fPIC -MMD -I$(LUA_INC)
 
-ifeq ($(OS), Darwin)
-SO_NAME := libhtmlentities.dylib
-else
-SO_NAME := libhtmlentities.so
-endif
-
-CFLAGS := -Wall -O3 -flto -g -fPIC -MMD
-
-ifeq ($(OS), Linux)
-    CFLAGS := $(CFLAGS) -Wl,--build-id
-endif
-
-PREFIX := /usr/local
-LUA_VERSION = 5.1
-SO_TARGET_DIR := $(PREFIX)/lib/lua/$(LUA_VERSION)
-LUA_TARGET_DIR := $(PREFIX)/share/lua/$(LUA_VERSION)/
-
-.PHONY = all test clean install
+.PHONY = all clean
 
 all : $(SO_NAME)
 
 ${OBJ} : %.o : %.c
-	$(CC) $(CFLAGS) -DBUILDING_SO -c $<
+	$(CC) $(CFLAGS)  -c $<
 
 ${SO_NAME} : ${OBJ}
-	$(CC) $(CFLAGS) -DBUILDING_SO $^ -shared -o $@
-
-test: all
-	luajit test.lua
+	$(CC) $(CFLAGS) -L$(LUA_LIB) $^ -shared -o $@
 
 clean:
 	rm -f *.o *.so a.out *.d
-
-install:
-	install -D -m 755 $(SO_NAME) $(DESTDIR)/$(SO_TARGET_DIR)/$(SO_NAME)
-	install -D -m 664 htmlentities.lua  $(DESTDIR)/$(LUA_TARGET_DIR)/htmlentities.lua
